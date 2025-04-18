@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Удаление скрытых символов</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+      background-color: #f9f9f9;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      margin-bottom: 10px;
+      font-family: monospace;
+      padding: 10px;
+      font-size: 14px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      padding: 10px 20px;
+      margin-bottom: 10px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    .highlight {
+      background-color: yellow;
+    }
+    .counter {
+      margin-bottom: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+    #highlighted {
+      white-space: pre-wrap;
+      background-color: #fffbe6;
+      border: 1px dashed #ccc;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 14px;
+      border-radius: 6px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h2>🧹 Удаление скрытых символов</h2>
+  <p>Вставьте сюда текст — подозрительные символы подсветятся, а результат автоматически очистится 👇</p>
+  <textarea id="input" oninput="handleInput()"></textarea>
+  <div class="counter" id="counter"></div>
+  <button onclick="copyOutput()">📋 Скопировать очищенный текст</button>
+  <button onclick="toggleHiddenView()">👁 Показать скрытые символы</button>
+  <p>Очищенный текст:</p>
+  <textarea id="output" readonly></textarea>
+
+  <div id="highlighted"></div>
+
+  <script>
+    const zwsRegex = /[\u200B-\u200F\uFEFF\u2060]/g;
+
+    function handleInput() {
+      const input = document.getElementById('input').value;
+      const cleaned = input.replace(zwsRegex, '');
+      document.getElementById('output').value = cleaned;
+      updateCounter(input);
+      updateHighlight(input);
+    }
+
+    function updateCounter(text) {
+      const total = text.length;
+      const hidden = (text.match(zwsRegex) || []).length;
+      document.getElementById('counter').textContent = `Символов всего: ${total} | Скрытых: ${hidden}`;
+    }
+
+    function copyOutput() {
+      const output = document.getElementById('output');
+      output.select();
+      document.execCommand('copy');
+      alert('Текст скопирован!');
+    }
+
+    function toggleHiddenView() {
+      const box = document.getElementById('highlighted');
+      box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function updateHighlight(text) {
+      const highlighted = text.replace(zwsRegex, match => `<span class="highlight">[${match.charCodeAt(0).toString(16)}]</span>`);
+      document.getElementById('highlighted').innerHTML = highlighted;
+    }
+  </script>
+</body>
+</html>
