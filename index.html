@@ -11,16 +11,43 @@
       margin: auto;
       background-color: #f9f9f9;
     }
+    .wrapper {
+      position: relative;
+    }
+    .highlighter {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 150px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: #fffbe6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow: hidden;
+      pointer-events: none;
+      color: transparent;
+    }
+    .highlight {
+      background-color: yellow;
+      color: black;
+    }
     textarea {
       width: 100%;
       height: 150px;
-      margin-bottom: 10px;
       font-family: monospace;
       padding: 10px;
       font-size: 14px;
-      background-color: #fff;
+      background-color: transparent;
       border: 1px solid #ccc;
       border-radius: 6px;
+      position: relative;
+      z-index: 1;
+      color: black;
     }
     button {
       padding: 10px 20px;
@@ -28,37 +55,37 @@
       margin-right: 10px;
       cursor: pointer;
     }
-    .highlight {
-      background-color: yellow;
-    }
     .counter {
       margin-bottom: 10px;
       font-size: 14px;
       color: #555;
     }
-    #highlighted {
-      white-space: pre-wrap;
-      background-color: #fffbe6;
-      border: 1px dashed #ccc;
+    #output {
+      width: 100%;
+      height: 100px;
       padding: 10px;
       font-family: monospace;
       font-size: 14px;
+      background-color: #fff;
+      border: 1px solid #ccc;
       border-radius: 6px;
-      display: none;
     }
   </style>
 </head>
 <body>
   <h2>🧹 Удаление скрытых символов</h2>
   <p>Вставьте сюда текст — подозрительные символы подсветятся, а результат автоматически очистится 👇</p>
-  <textarea id="input" oninput="handleInput()"></textarea>
+
+  <div class="wrapper">
+    <div id="highlighter" class="highlighter"></div>
+    <textarea id="input" oninput="handleInput()" spellcheck="false"></textarea>
+  </div>
+
   <div class="counter" id="counter"></div>
   <button onclick="copyOutput()">📋 Скопировать очищенный текст</button>
-  <button onclick="toggleHiddenView()">👁 Показать скрытые символы</button>
+  <button onclick="clearInput()">🗑 Очистить</button>
   <p>Очищенный текст:</p>
   <textarea id="output" readonly></textarea>
-
-  <div id="highlighted"></div>
 
   <script>
     const zwsRegex = /[\u200B-\u200F\uFEFF\u2060]/g;
@@ -84,14 +111,18 @@
       alert('Текст скопирован!');
     }
 
-    function toggleHiddenView() {
-      const box = document.getElementById('highlighted');
-      box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    function clearInput() {
+      document.getElementById('input').value = '';
+      document.getElementById('output').value = '';
+      document.getElementById('counter').textContent = '';
+      document.getElementById('highlighter').innerHTML = '';
     }
 
     function updateHighlight(text) {
-      const highlighted = text.replace(zwsRegex, match => `<span class="highlight">[${match.charCodeAt(0).toString(16)}]</span>`);
-      document.getElementById('highlighted').innerHTML = highlighted;
+      const highlighted = text.replace(/[\u200B-\u200F\uFEFF\u2060]/g, match =>
+        `<span class="highlight">[${match.charCodeAt(0).toString(16)}]</span>`
+      ).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      document.getElementById('highlighter').innerHTML = highlighted;
     }
   </script>
 </body>
